@@ -1,11 +1,15 @@
 <template>
    <div id="home">
      <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-     <home-swiper :banners="banners"/>
-     <recommend-view :recommends="recommends"/>
-     <feature-view/>
-     <tab-control class="tab-control" :titles="['流行','新款','精选']"/>
-     <goods-list :goods="goods['pop'].list"/>
+     <scroll class="content">
+       <home-swiper :banners="banners"/>
+       <recommend-view :recommends="recommends"/>
+       <feature-view/>
+       <tab-control class="tab-control"
+                    :titles="['流行','新款','精选']"
+                    @tabClick="tabClick"/>
+       <goods-list :goods="showGoods"/>
+     </scroll>
    </div>
 </template>
 
@@ -16,12 +20,10 @@
 
   import NavBar from "components/common/navbar/NavBar";
   import TabControl from "components/content/tabControl/TabControl";
-
   import GoodsList from "components/content/goods/GoodsList";
+  import Scroll from "components/common/scroll/Scroll";
+  import {getHomeMultidata, getHomeGoods}from "network/home";
 
-  import {getHomeMultidata,
-          getHomeGoods
-  }from "network/home";
 
   export default {
         name: "home",
@@ -31,7 +33,8 @@
           FeatureView,
           NavBar,
           TabControl,
-          GoodsList
+          GoodsList,
+          Scroll
       },
         data() {
           return {
@@ -41,8 +44,14 @@
               'pop':{page:0, list:[]},
               'new':{page:0, list:[]},
               'sell':{page:0, list:[]}
-            }
+            },
+            currentType:'pop'
           }
+    },
+    computed:{
+        showGoods() {
+          return this.goods[this.currentType].list
+        }
     },
         created() {
           //请求首页数据
@@ -53,6 +62,26 @@
           this.getHomeGoods('sell')
     },
     methods:{
+          /*
+          * 事件监听的相关的方法
+          * */
+      tabClick(index){
+        //console.log(index);
+        switch (index) {
+          case 0:
+            this.currentType = 'pop'
+            break
+          case 1:
+            this.currentType = 'new'
+            break
+          case 2:
+            this.currentType = 'sell'
+            break
+        }
+      },
+          /**
+           * 网络请求相关的方法
+           * */
       getHomeMultidata(){
         getHomeMultidata().then(res => {
           //console.log(res);
@@ -77,7 +106,8 @@
 <style scoped>
   #home {
     padding-top: 44px;
-    height: 2000px;
+    height: 100vh;
+    position: relative;
   }
   .home-nav {
     background-color: var(--color-tint);
@@ -94,4 +124,18 @@
     top: 44px;
     z-index: 9;
   }
+  .content {
+    /*height: 300px;*/
+    overflow: hidden;
+    position: absolute;
+    top: 44px;
+    bottom: 49px;
+    left: 0;
+    right: 0;
+  }
+  /*.content {*/
+  /*  height: calc(100% - 93px);*/
+  /*  overflow: hidden;*/
+  /*  margin-top: 44px;*/
+  /*}*/
 </style>
