@@ -1,13 +1,16 @@
 <template>
   <div class="bottom-bar">
    <div class="checked-content">
-     <check-button class="checked-button"/>
+     <check-button
+       :is-checked="isSelectAll"
+       class="checked-button"
+     @click.native="selectAllClick"/>
      <span>全选</span>
    </div>
     <div class="price-total">
       合计：{{totalPrice}}
     </div>
-    <div class="calculate">
+    <div class="calculate" @click="calcClick">
       去计算 ({{checkLength}})
     </div>
   </div>
@@ -30,6 +33,29 @@
         },
         checkLength() {
           return this.$store.state.cartList.filter(item => item.checked).length
+        },
+        isSelectAll() {
+          // if (this.$store.state.cartList.length === 0) return false
+          // return !(this.$store.state.cartList.filter(item => !item.checked).length)
+          //需要判断购物车是否为空
+          if (this.$store.state.cartList.length === 0) return false
+          return !this.$store.state.cartList.find(item => !item.checked)
+        }
+      },
+      methods:{
+        selectAllClick() {
+          // console.log('全选');
+          if (this.isSelectAll) {// 全部选择
+            this.$store.state.cartList.forEach(item => item.checked = false)
+          }else {// 部分或全部不选中
+            this.$store.state.cartList.forEach(item => item.checked = true)
+          }
+          // this.$store.state.cartList.forEach(item => item.checked = !this.isSelectAll)
+        },
+        calcClick() {
+          if (!this.isSelectAll) {
+
+          }
         }
       }
     }
